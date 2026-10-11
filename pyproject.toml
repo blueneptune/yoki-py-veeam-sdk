@@ -1,0 +1,52 @@
+[project]
+name = "veeam-sdk"
+version = "0.1.0"
+description = "A small, read-only-by-default SDK for the Veeam Backup & Replication REST API, built on sdk-primer-core."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sdk-primer",
+    "httpx>=0.28.1",
+    "pydantic>=2.13.5",
+    "loguru>=0.7.3",
+]
+
+[project.scripts]
+veeam-probe = "veeam_sdk.probe:main"
+
+[tool.uv.sources]
+# The transport underneath: retries, typed exceptions, request logging.
+sdk-primer = { git = "https://github.com/blueneptune/sdk-primer-core.git", tag = "v0.1.0" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/veeam_sdk"]
+
+[tool.hatch.metadata]
+# sdk-primer is a git dependency, not a PyPI one.
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "respx>=0.23.1",
+    "ruff>=0.16.8",
+]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
