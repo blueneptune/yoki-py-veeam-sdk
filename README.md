@@ -212,6 +212,70 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 The tests fake the server with `respx`; a request no test set up fails
 the test instead of reaching the network.
 
+## Releases
+
+This SDK follows the same branch loop as blt (see the "Releases" section
+of blt's README) with one difference: it is **not on the weekly clock**.
+It is released whenever it has a change worth releasing, and blt takes
+it by changing the tag it pins.
+
+`main` holds only finished work. Nothing is committed to it directly.
+
+| Thing | Name | Example |
+|---|---|---|
+| Feature branch | `F/<What_it_does>` | `F/Add_restore_calls` |
+| Bug-fix branch | `B/<What_it_fixes>` | `B/Paging_stops_early` |
+| Hotfix branch | `H/<What_it_fixes>` | `H/Token_renewal_loop` |
+| Release tag, on `main` | `v<major>.<minor>.<patch>` | `v0.2.0` |
+
+Versions here are ordinary `major.minor.patch`, not blt's weekly names:
+a new call or option is a minor step (`v0.1.0` to `v0.2.0`), a fix is a
+patch step (`v0.2.0` to `v0.2.1`), and a change that would break a
+caller is a major step. The number in `pyproject.toml` and the tag
+always match.
+
+### One piece of work
+
+```
+git checkout main && git pull
+git checkout -b F/Add_restore_calls
+# work in small commits; run the checks often (see Development)
+git push -u origin F/Add_restore_calls
+```
+
+### Releasing
+
+Once the branch's checks pass:
+
+```
+git checkout main && git pull
+git merge --no-ff F/Add_restore_calls
+# set the new version in pyproject.toml, then:
+uv lock
+git commit -am "Release v0.2.0"
+git tag -a v0.2.0 -m "What changed, in a line or two"
+git push origin main v0.2.0
+```
+
+The tag has to be pushed by name, as above: a plain `git push` does not
+send tags, and blt cannot pin a tag that is not on GitHub.
+
+Then, in blt, on that week's release branch: change the tag for
+`veeam-sdk` under `[tool.uv.sources]` in `pyproject.toml`, run `uv lock`,
+run blt's tests, commit.
+
+### Tidying up
+
+A branch is deleted once it has been merged, locally and on GitHub:
+
+```
+git branch -d F/Add_restore_calls
+git push origin --delete F/Add_restore_calls
+```
+
+`git branch -d` refuses to delete a branch that has not been merged,
+which is the check that nothing is lost.
+
 ## Sources
 
 - [VBR REST API reference (v13, 1.3-rev1)](https://helpcenter.veeam.com/references/vbr/13/rest/1.3-rev1/tag/SectionOverview) - authentication, versions, paging, every endpoint above
