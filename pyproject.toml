@@ -16,7 +16,7 @@ veeam-probe = "veeam_sdk.probe:main"
 
 [tool.uv.sources]
 # The transport underneath: retries, typed exceptions, request logging.
-sdk-primer = { git = "https://github.com/blueneptune/sdk-primer-core.git", tag = "v0.1.0" }
+sdk-primer = { git = "https://github.com/blueneptune/sdk-primer-core.git", tag = "v0.1.2" }
 
 [build-system]
 requires = ["hatchling"]
